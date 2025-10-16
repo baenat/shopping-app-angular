@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { ProductsResponse } from '@products/interfaces/product.interface';
+import { Product, ProductsResponse } from '@products/interfaces/product.interface';
 import { GeneralService } from '@shared/services/general.services';
 import { Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -23,5 +23,9 @@ export class ProductsService {
     const { limit = 9, offset = 0, gender = '' } = options;
 
     return this._generalService.get<ProductsResponse>(`${baseUrl}/products`, { params: { limit, offset, gender } }).pipe(tap(console.log));
+  }
+
+  getProductByIdSlug(slug: string): Observable<Product> {
+    return this._generalService.get<Product>(`${baseUrl}/products/${slug}`);
   }
 }
