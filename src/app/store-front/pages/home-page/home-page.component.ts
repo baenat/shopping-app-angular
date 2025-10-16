@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ProductCardComponent } from '@products/components/product-card/product-card.component';
+import { ProductsService } from '@products/services/products.service';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-home-page',
@@ -7,4 +9,12 @@ import { ProductCardComponent } from '@products/components/product-card/product-
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.css',
 })
-export class HomePageComponent { }
+export class HomePageComponent {
+
+  _productsService = inject(ProductsService);
+
+  productsResource = rxResource({
+    request: () => ({}),
+    loader: ({ request }) => this._productsService.getProducts()
+  })
+}
