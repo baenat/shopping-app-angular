@@ -6,3 +6,8 @@
     <product-card [product]="product" />
   }
 </section>
+
+<app-pagination
+  [pages]="productsResource.value()?.pages ?? 0"
+  [currentPage]="_paginationService.currentPage()"
+/>
