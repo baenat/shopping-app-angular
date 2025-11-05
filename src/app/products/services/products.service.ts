@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Product, ProductsResponse } from '@products/interfaces/product.interface';
 import { GeneralService } from '@shared/services/general.services';
-import { Observable, of, tap } from 'rxjs';
+import { delay, Observable, of, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 const baseUrl = environment.baseUrl;
@@ -19,6 +19,7 @@ export class ProductsService {
 
   private _generalService = inject(GeneralService);
   private productsCache = new Map<string, ProductsResponse>();
+  private productCache: Record<string, Product> = ({});
 
   getProducts(options: Options): Observable<ProductsResponse> {
     const { limit = 9, offset = 0, gender = '' } = options;
@@ -36,6 +37,14 @@ export class ProductsService {
   }
 
   getProductByIdSlug(slug: string): Observable<Product> {
-    return this._generalService.get<Product>(`${baseUrl}/products/${slug}`);
+    if (this.productCache[slug]) {
+      return of(this.productCache[slug]);
+    }
+
+    return this._generalService.get<Product>(`${baseUrl}/products/${slug}`)
+      .pipe(
+        delay(2000),
+        tap((product) => this.productCache[slug] = product)
+      );
   }
 }
