@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { AuthResponse } from '@auth/interfaces/auth-response';
 import { User } from '@auth/interfaces/user.interface';
 import { catchError, map, Observable, of, tap } from 'rxjs';
@@ -25,6 +26,10 @@ export class AuthService {
   private _token = signal<string | null>(null);
 
   private _httpClient = inject(HttpClient);
+
+  checkStatusResource = rxResource({
+    loader: () => this.checkAuthStatus()
+  });
 
   authStatus = computed<AuthStatusType>(() => {
     if (this.authStatus() === AuthStatus.Checking) return AuthStatus.Checking;
@@ -58,6 +63,28 @@ export class AuthService {
     this._authStatus.set(AuthStatus.NotAuthenticated);
     this._user.set(null);
     this._token.set(null);
+  }
+
+  checkAuthStatus(): Observable<boolean> {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      return of(false);
+    }
+
+    return this._httpClient.get<AuthResponse>(`${baseUrl}/auth/check-status`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }).pipe(
+      tap(response => this.userLoggedIn(response)),
+      map(() => true),
+      catchError((error: any) => {
+        this.userLoggedOut();
+        return of(false);
+      })
+    )
+
   }
 
 }
