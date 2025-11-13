@@ -34,7 +34,17 @@ export class RegisterPageComponent {
 
     const { name = '', email = '', password = '' } = this.registerForm.value;
 
-    console.log(this.registerForm.value);
+    this._authService.register(name, email, password).subscribe(isRegistered => {
+      if (isRegistered) {
+        this._router.navigateByUrl('/');
+        return;
+      }
+
+      this.hasError.set(true);
+      setTimeout(() => {
+        this.hasError.set(false);
+      }, 3000);
+    })
   }
 
 }
