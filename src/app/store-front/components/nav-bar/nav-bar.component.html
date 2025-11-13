@@ -26,7 +26,7 @@
     </div>
     <div class="navbar-end gap-4">
       @if (_authService.authStatus() === authStatus.Authenticated) {
-        <button class="btn btn-ghost"> {{ _authService._user()?.fullName }}</button>
+        <button class="btn btn-ghost"> {{ _authService.user()?.fullName }}</button>
         <button class="btn btn-sm btn-secondary" (click)="_authService.logout()"> Salir </button>
       }
       <!--  -->

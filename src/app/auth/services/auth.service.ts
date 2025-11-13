@@ -22,8 +22,8 @@ const baseUrl = environment.baseUrl;
 export class AuthService {
 
   private _authStatus = signal<AuthStatusType>(AuthStatus.Checking);
-  public _user = signal<User | null>(null);
-  private _token = signal<string | null>(null);
+  private _user = signal<User | null>(null);
+  private _token = signal<string | null>(localStorage.getItem('token'));
 
   private _httpClient = inject(HttpClient);
 
@@ -38,6 +38,9 @@ export class AuthService {
 
     return AuthStatus.NotAuthenticated
   });
+
+  user = computed(() => this._user());
+  token = computed(this._token);
 
   login(email: string, password: string): Observable<boolean> {
     return this._httpClient.post<AuthResponse>(`${baseUrl}/auth/login`, { email, password })
@@ -73,9 +76,6 @@ export class AuthService {
     }
 
     return this._httpClient.get<AuthResponse>(`${baseUrl}/auth/check-status`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
     }).pipe(
       map(response => this.handleAuthSuccess(response)),
       catchError((error: any) => this.handleAuthError())
