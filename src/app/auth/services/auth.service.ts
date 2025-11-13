@@ -88,4 +88,12 @@ export class AuthService {
     localStorage.removeItem('token');
   }
 
+  register(fullName: string, email: string, password: string): Observable<boolean> {
+    return this._httpClient.post<AuthResponse>(`${baseUrl}/auth/register`, { fullName, email, password })
+      .pipe(
+        map(response => this.handleAuthSuccess(response)),
+        catchError((error: any) => this.handleAuthError())
+      );
+  }
+
 }
