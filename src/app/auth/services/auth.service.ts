@@ -6,7 +6,7 @@ import { User } from '@auth/interfaces/user.interface';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
-enum AuthStatus {
+export enum AuthStatus {
   Checking = "checking",
   Authenticated = "authenticated",
   NotAuthenticated = "not-authenticated",
@@ -22,7 +22,7 @@ const baseUrl = environment.baseUrl;
 export class AuthService {
 
   private _authStatus = signal<AuthStatusType>(AuthStatus.Checking);
-  private _user = signal<User | null>(null);
+  public _user = signal<User | null>(null);
   private _token = signal<string | null>(null);
 
   private _httpClient = inject(HttpClient);
@@ -32,11 +32,11 @@ export class AuthService {
   });
 
   authStatus = computed<AuthStatusType>(() => {
-    if (this.authStatus() === AuthStatus.Checking) return AuthStatus.Checking;
+    if (this._authStatus() === AuthStatus.Checking) return AuthStatus.Checking;
 
     if (this._user()) return AuthStatus.Authenticated;
 
-    return AuthStatus.Checking
+    return AuthStatus.NotAuthenticated
   });
 
   login(email: string, password: string): Observable<boolean> {
