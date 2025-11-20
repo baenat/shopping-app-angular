@@ -6,10 +6,10 @@
 
 <div class="divider"></div>
 
-<div class="flex gap-2 items-center h-20 mt-4 mb-10">
+<div class="flex gap-2 items-center h-20">
   <app-pagination [pages]="productsResource.value()?.pages ?? 0" [currentPage]="_paginationService.currentPage()" />
 
-  <select #productsPage class="select select-bordered w-32 no-underline" (change)="productsPerPage.set(+productsPage.value)">
+  <select #productsPage class="select select-bordered w-32 no-underline mt-4 mb-10" (change)="productsPerPage.set(+productsPage.value)">
     <option value="10">10</option>
     <option value="20">20</option>
     <option value="50">50</option>
