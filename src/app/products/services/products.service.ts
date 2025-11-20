@@ -59,4 +59,12 @@ export class ProductsService {
         tap((product) => this.productCache[id] = product)
       );
   }
+
+  updateProduct(id: string, product: Partial<Product>): Observable<Product> {
+    return this._generalService.patch<Product>(`${baseUrl}/products/${id}`, product)
+      .pipe(
+        delay(2000),
+        tap((product) => this.productCache[id] = product)
+      );
+  }
 }
