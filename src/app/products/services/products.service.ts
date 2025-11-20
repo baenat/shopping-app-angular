@@ -64,7 +64,18 @@ export class ProductsService {
     return this._generalService.patch<Product>(`${baseUrl}/products/${id}`, product)
       .pipe(
         delay(2000),
-        tap((product) => this.productCache[id] = product)
+        tap((product) => this.updateProductCache(product))
       );
+  }
+
+  private updateProductCache(product: Product) {
+    const productId = product.id;
+
+    this.productCache[productId] = product;
+    for (const productsResponse of this.productsCache.values()) {
+      productsResponse.products = productsResponse.products.map((currentProduct) =>
+        currentProduct.id === productId ? product : currentProduct
+      );
+    }
   }
 }
