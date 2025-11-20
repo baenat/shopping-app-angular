@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { Product } from '@products/interfaces/product.interface';
 import { ProductCarouselComponent } from "@products/components/product-carousel/product-carousel.component";
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -6,6 +6,7 @@ import { FormUtils } from '@utils/form-utils';
 import { FormErrorLabelComponent } from "@shared/components/form-error-label/form-error-label.component";
 import { ProductsService } from '@products/services/products.service';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'product-details',
@@ -21,6 +22,8 @@ export class ProductDetailsComponent implements OnInit {
   router = inject(Router);
 
   productServices = inject(ProductsService);
+
+  isSavedProduct = signal(false);
 
   productForm = this.formBuilder.group({
     title: ['', [Validators.required]],
@@ -57,7 +60,7 @@ export class ProductDetailsComponent implements OnInit {
     this.productForm.patchValue({ sizes: currentSizes });
   }
 
-  onSubmit() {
+  async onSubmit() {
     const isFormValid = this.productForm.valid;
 
     if (!isFormValid) return;
@@ -69,21 +72,22 @@ export class ProductDetailsComponent implements OnInit {
     }
 
     this.product().id === 'new'
-      ? this.createProduct(productLike as Product)
-      : this.updateProduct(productLike as Product);
+      ? await this.createProduct(productLike as Product)
+      : await this.updateProduct(productLike as Product);
+
+    this.isSavedProduct.set(true);
+    setTimeout(() => {
+      this.isSavedProduct.set(false);
+    }, 3000);
   }
 
-  private updateProduct(product: Product) {
-    this.productServices.updateProduct(this.product().id, product)
-      .subscribe((product) => {
-        console.log('Product updated')
-      });
+  private async updateProduct(product: Product) {
+    return await firstValueFrom(this.productServices.updateProduct(this.product().id, product));
   }
 
-  private createProduct(product: Partial<Product>) {
-    this.productServices.createProduct(product)
-      .subscribe((product) => {
-        console.log('Product updated');
+  private async createProduct(product: Partial<Product>) {
+    return await firstValueFrom(this.productServices.createProduct(product))
+      .then((product) => {
         this.router.navigate(['/admin/product', product.id]);
       });
   }
