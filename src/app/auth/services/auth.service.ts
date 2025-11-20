@@ -3,6 +3,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { AuthResponse } from '@auth/interfaces/auth-response';
 import { User } from '@auth/interfaces/user.interface';
+import { Role } from '@products/interfaces/product.interface';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -41,6 +42,7 @@ export class AuthService {
 
   user = computed(() => this._user());
   token = computed(this._token);
+  isAdmin = computed(() => this._user()?.roles.includes(Role.Admin) ?? false);
 
   login(email: string, password: string): Observable<boolean> {
     return this._httpClient.post<AuthResponse>(`${baseUrl}/auth/login`, { email, password })
