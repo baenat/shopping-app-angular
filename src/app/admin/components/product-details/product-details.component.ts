@@ -24,6 +24,8 @@ export class ProductDetailsComponent implements OnInit {
   productServices = inject(ProductsService);
 
   isSavedProduct = signal(false);
+  tempImages = signal<string[]>([]);
+  imageFileList: FileList | undefined = undefined;
 
   productForm = this.formBuilder.group({
     title: ['', [Validators.required]],
@@ -90,5 +92,15 @@ export class ProductDetailsComponent implements OnInit {
       .then((product) => {
         this.router.navigate(['/admin/product', product.id]);
       });
+  }
+
+  onFilesChanged(event: Event) {
+    const fileList = (event.target as HTMLInputElement).files;
+
+    this.tempImages.set([]);
+    this.imageFileList = fileList ?? undefined;
+    const imageUrls = Array.from(fileList ?? []).map(file => URL.createObjectURL(file));
+
+    this.tempImages.set(imageUrls);
   }
 }
