@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormUtils } from '@utils/form-utils';
 import { FormErrorLabelComponent } from "@shared/components/form-error-label/form-error-label.component";
 import { ProductsService } from '@products/services/products.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'product-details',
@@ -15,9 +16,11 @@ import { ProductsService } from '@products/services/products.service';
 export class ProductDetailsComponent implements OnInit {
 
   product = input.required<Product>();
-  productServices = inject(ProductsService);
 
   formBuilder = inject(FormBuilder);
+  router = inject(Router);
+
+  productServices = inject(ProductsService);
 
   productForm = this.formBuilder.group({
     title: ['', [Validators.required]],
@@ -65,9 +68,23 @@ export class ProductDetailsComponent implements OnInit {
       tags: formValue.tags?.toLowerCase().split(',').map(tag => tag.trim()) ?? [],
     }
 
-    this.productServices.updateProduct(this.product().id, productLike)
+    this.product().id === 'new'
+      ? this.createProduct(productLike as Product)
+      : this.updateProduct(productLike as Product);
+  }
+
+  private updateProduct(product: Product) {
+    this.productServices.updateProduct(this.product().id, product)
       .subscribe((product) => {
         console.log('Product updated')
+      });
+  }
+
+  private createProduct(product: Partial<Product>) {
+    this.productServices.createProduct(product)
+      .subscribe((product) => {
+        console.log('Product updated');
+        this.router.navigate(['/admin/product', product.id]);
       });
   }
 }

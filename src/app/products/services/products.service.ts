@@ -1,10 +1,25 @@
 import { inject, Injectable } from '@angular/core';
-import { Product, ProductsResponse } from '@products/interfaces/product.interface';
+import { User } from '@auth/interfaces/user.interface';
+import { Gender, Product, ProductsResponse } from '@products/interfaces/product.interface';
 import { GeneralService } from '@shared/services/general.services';
 import { delay, Observable, of, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 const baseUrl = environment.baseUrl;
+
+const emptyProduct: Product = {
+  id: 'new',
+  title: '',
+  price: 0,
+  description: '',
+  slug: '',
+  stock: 0,
+  sizes: [],
+  gender: Gender.Kid,
+  images: [],
+  tags: [],
+  user: {} as User
+}
 
 interface Options {
   limit?: number;
@@ -49,6 +64,11 @@ export class ProductsService {
   }
 
   getProductById(id: string): Observable<Product> {
+
+    if (id === 'new') {
+      return of(emptyProduct);
+    }
+
     if (this.productCache[id]) {
       return of(this.productCache[id]);
     }
@@ -64,14 +84,26 @@ export class ProductsService {
     return this._generalService.patch<Product>(`${baseUrl}/products/${id}`, product)
       .pipe(
         delay(2000),
+        tap((product) => this.updateProductCache(product)),
+        tap((product) => this.updateProductsCache(product)),
+      );
+  }
+
+  createProduct(product: Partial<Product>): Observable<Product> {
+    return this._generalService.post<Product>(`${baseUrl}/products`, product)
+      .pipe(
         tap((product) => this.updateProductCache(product))
       );
   }
 
   private updateProductCache(product: Product) {
     const productId = product.id;
-
     this.productCache[productId] = product;
+  }
+
+  private updateProductsCache(product: Product) {
+    const productId = product.id;
+
     for (const productsResponse of this.productsCache.values()) {
       productsResponse.products = productsResponse.products.map((currentProduct) =>
         currentProduct.id === productId ? product : currentProduct

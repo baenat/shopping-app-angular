@@ -4,10 +4,11 @@ import { ProductTableComponent } from "@products/components/product-table/produc
 import { ProductsService } from '@products/services/products.service';
 import { PaginationService } from '@shared/components/pagination/pagination.service';
 import { PaginationComponent } from "@shared/components/pagination/pagination.component";
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-products-page-admin',
-  imports: [ProductTableComponent, PaginationComponent],
+  imports: [ProductTableComponent, PaginationComponent, RouterLink],
   templateUrl: './products-page-admin.component.html',
   styleUrl: './products-page-admin.component.css'
 })
