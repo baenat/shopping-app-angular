@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { Product } from '@products/interfaces/product.interface';
 import { ProductCarouselComponent } from "@products/components/product-carousel/product-carousel.component";
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -40,6 +40,10 @@ export class ProductDetailsComponent implements OnInit {
   })
 
   sizes: string[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+  imagesToCarrusel = computed((() => {
+    return [...this.product().images, ...this.tempImages()]
+  }));
 
   ngOnInit(): void {
     this.setFormValues(this.product());
