@@ -13,13 +13,6 @@ Una aplicación de e-commerce desarrollada con Angular 19, que ofrece una experi
 
 </div><br>
 
-## 📸 Capturas de pantalla
-
-| | |
-| ------------- |:-------------:|
-| ![Screenshot 1](./public/assets/images/product.png) | ![Screenshot 2](./public/assets/images/detail.png) |
-
-
 ## ✨ Características Principales
 
 ### 👥 Para Usuarios
@@ -32,6 +25,12 @@ Una aplicación de e-commerce desarrollada con Angular 19, que ofrece una experi
 - **Gestión Completa de Productos**: CRUD completo (Crear, Leer, Actualizar, Eliminar)
 - **Carga de Imágenes**: Sistema de upload para imágenes de productos
 - **Control de Acceso**: Acceso restringido solo para usuarios con rol de administrador
+
+## 📸 Capturas
+
+| | |
+| ------------- |:-------------:|
+| ![Screenshot 1](./public/assets/images/product.png) | ![Screenshot 2](./public/assets/images/detail.png) |
 
 ## 🚀 Inicio Rápido
 
