@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { User } from '@auth/interfaces/user.interface';
 import { Gender, Product, ProductsResponse } from '@products/interfaces/product.interface';
 import { GeneralService } from '@shared/services/general.services';
-import { delay, Observable, of, tap } from 'rxjs';
+import { delay, forkJoin, map, Observable, of, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 const baseUrl = environment.baseUrl;
@@ -109,5 +109,24 @@ export class ProductsService {
         currentProduct.id === productId ? product : currentProduct
       );
     }
+  }
+
+  uploadImages(images?: FileList): Observable<string[]> {
+    if (!images) return of([]);
+
+    const uploadObservables = Array.from(images).map(imageFile => this.uploadImage(imageFile));
+
+    return forkJoin(uploadObservables)
+      .pipe(
+        tap(console.log)
+      );
+  }
+
+  uploadImage(imageFile: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', imageFile);
+
+    return this._generalService.post<{ filename: string }>(`${baseUrl}/files/product`, formData)
+      .pipe(map(response => response.filename));
   }
 }
