@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { User } from '@auth/interfaces/user.interface';
 import { Gender, Product, ProductsResponse } from '@products/interfaces/product.interface';
 import { GeneralService } from '@shared/services/general.services';
-import { delay, forkJoin, map, Observable, of, tap } from 'rxjs';
+import { delay, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 const baseUrl = environment.baseUrl;
@@ -80,20 +80,43 @@ export class ProductsService {
       );
   }
 
-  updateProduct(id: string, product: Partial<Product>): Observable<Product> {
-    return this._generalService.patch<Product>(`${baseUrl}/products/${id}`, product)
-      .pipe(
-        delay(2000),
-        tap((product) => this.updateProductCache(product)),
-        tap((product) => this.updateProductsCache(product)),
-      );
+  updateProduct(id: string, product: Partial<Product>, imageFileList?: FileList): Observable<Product> {
+    const currentImages = product.images ?? [];
+
+    return this.uploadImages(imageFileList).pipe(
+      map((imagesNames) => ({
+        ...product,
+        images: [...currentImages, ...imagesNames]
+      })),
+      switchMap((updatedProduct) => this._generalService.patch<Product>(`${baseUrl}/products/${id}`, updatedProduct)),
+      tap((product) => this.updateProductCache(product)),
+      tap((product) => this.updateProductsCache(product)),
+    );
+
+    // return this._generalService.patch<Product>(`${baseUrl}/products/${id}`, product)
+    //   .pipe(
+    //     delay(2000),
+    //     tap((product) => this.updateProductCache(product)),
+    //     tap((product) => this.updateProductsCache(product)),
+    //   );
   }
 
-  createProduct(product: Partial<Product>): Observable<Product> {
-    return this._generalService.post<Product>(`${baseUrl}/products`, product)
-      .pipe(
-        tap((product) => this.updateProductCache(product))
-      );
+  createProduct(product: Partial<Product>, imageFileList?: FileList): Observable<Product> {
+    const currentImages = product.images ?? [];
+
+    return this.uploadImages(imageFileList).pipe(
+      map((imagesNames) => ({
+        ...product,
+        images: [...currentImages, ...imagesNames]
+      })),
+      switchMap((createdProduct) => this._generalService.post<Product>(`${baseUrl}/products`, createdProduct)),
+      tap((product) => this.updateProductCache(product)),
+    );
+
+    // return this._generalService.post<Product>(`${baseUrl}/products`, product)
+    //   .pipe(
+    //     tap((product) => this.updateProductCache(product))
+    //   );
   }
 
   private updateProductCache(product: Product) {
@@ -126,7 +149,7 @@ export class ProductsService {
     const formData = new FormData();
     formData.append('file', imageFile);
 
-    return this._generalService.post<{ filename: string }>(`${baseUrl}/files/product`, formData)
-      .pipe(map(response => response.filename));
+    return this._generalService.post<{ fileName: string }>(`${baseUrl}/files/product`, formData)
+      .pipe(map(response => response.fileName));
   }
 }

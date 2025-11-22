@@ -88,11 +88,11 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   private async updateProduct(product: Product) {
-    return await firstValueFrom(this.productServices.updateProduct(this.product().id, product));
+    return await firstValueFrom(this.productServices.updateProduct(this.product().id, product, this.imageFileList));
   }
 
   private async createProduct(product: Partial<Product>) {
-    return await firstValueFrom(this.productServices.createProduct(product))
+    return await firstValueFrom(this.productServices.createProduct(product, this.imageFileList))
       .then((product) => {
         this.router.navigate(['/admin/product', product.id]);
       });
